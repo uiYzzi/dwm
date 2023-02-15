@@ -1,4 +1,5 @@
 /* See LICENSE file for copyright and license details. */
+/* 有关版权和许可证的详细信息，请参阅许可证文件。 */
 
 /* appearance */
 static const unsigned int borderpx  = 1;        /* border pixel of windows */

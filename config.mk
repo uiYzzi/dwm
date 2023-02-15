@@ -1,9 +1,11 @@
 # dwm version
+# dwm 版本号
 VERSION = 6.4
 
 # Customize below to fit your system
 
 # paths
+# 补丁们
 PREFIX = /usr/local
 MANPREFIX = ${PREFIX}/share/man
 
@@ -11,6 +13,7 @@ X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
 
 # Xinerama, comment if you don't want it
+# Xinerama 是 Linux 下 X 窗口系统的扩展，用于支持多个显示器，不想要就注释掉
 XINERAMALIBS  = -lXinerama
 XINERAMAFLAGS = -DXINERAMA
 
