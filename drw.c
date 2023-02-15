@@ -1,4 +1,12 @@
 /* See LICENSE file for copyright and license details. */
+/* 有关版权和许可证的详细信息，请参阅许可证文件。 */
+
+/*
+ * drw是dwm中的一个结构，它用于描述窗口管理器的绘图行为。
+ * 它包含一个绘图上下文，用于绘制窗口管理器的所有元素，包括窗口边框、标签栏、状态栏等。
+ * 它还包含一个字体结构，用于指定窗口管理器使用的字体。
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

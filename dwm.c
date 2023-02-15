@@ -1,4 +1,6 @@
-/* See LICENSE file for copyright and license details.
+/* 
+ * See LICENSE file for copyright and license details.
+ * 有关版权和许可证的详细信息，请参阅许可证文件。
  *
  * dynamic window manager is designed like any other X client as well. It is
  * driven through handling X events. In contrast to other X clients, a window
@@ -20,6 +22,16 @@
  *
  * To understand everything else, start reading main().
  */
+
+ /*
+ * dynamic window manager是一种X客户端，它通过处理X事件来驱动。
+ * 与其他X客户端不同，窗口管理器会在根窗口上选择SubstructureRedirectMask，以接收有关窗口（消失）出现的事件。一次只允许一个X连接选择此事件掩码。
+ * dwm的事件处理程序组织在一个数组中，每当抓取到新事件时就会访问该数组，这样可以在O（1）时间内完成事件分派。
+ * 根窗口的每个子窗口都称为客户端，除了设置了override_redirect标志的窗口。
+ * 客户端在每个监视器上组织成一个链接客户端列表，焦点历史记录通过每个监视器上的堆栈列表进行记录。每个客户端都包含一个位数组，用于指示客户端的标签。
+ * 键和标记规则组织为数组，并在config.h中定义。
+ * 要了解其他所有内容，请从main()开始阅读。
+ */
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -36,9 +48,12 @@
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
+
+// Xinerama 是 Linux 下 X 窗口系统的扩展，用于支持多个显示器
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
+
 #include <X11/Xft/Xft.h>
 
 #include "drw.h"
