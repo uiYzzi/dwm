@@ -2220,6 +2220,10 @@ main(int argc, char *argv[])
 	checkotherwm();
 	setup();
 #ifdef __OpenBSD__
+	/*
+	 * pledge函数是OpenBSD操作系统中的一个安全函数，它可以限制程序的行为，
+	 * 以防止恶意攻击。它可以限制程序的访问权限，以及程序可以使用的系统调用
+	*/
 	if (pledge("stdio rpath proc exec", NULL) == -1)
 		die("pledge");
 #endif /* __OpenBSD__ */
