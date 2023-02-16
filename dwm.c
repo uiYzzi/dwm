@@ -60,16 +60,26 @@
 #include "util.h"
 
 /* macros */
+// 定义了按钮按下和释放的掩码
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
+// 定义了清除掩码
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
+// 定义了两个矩形的交集
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
+// 定义了窗口是否可见
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
+// 定义了数组的长度
 #define LENGTH(X)               (sizeof X / sizeof X[0])
+// 定义了鼠标按钮和移动的掩码
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
+// 定义了窗口的宽度
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
+// 定义了窗口的高度
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
+// 定义了标签的掩码
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
+// 定义了文本的宽度
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
 /* enums */
@@ -473,14 +483,32 @@ buttonpress(XEvent *e)
 			buttons[i].func(click == ClkTagBar && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
 }
 
+/* 
+ * 这个函数用于检查是否有其他窗口管理器正在运行。
+ * 首先，它将XSetErrorHandler设置为xerrorstart，
+ * 然后调用XSelectInput函数向根窗口发送SubstructureRedirectMask掩码，
+ * 如果有其他窗口管理器正在运行，则会引发错误，
+ * 然后将XSetErrorHandler设置为xerror，最后调用XSync函数同步显示器 
+ */ 
 void
 checkotherwm(void)
 {
+	/*
+	 * XSetErrorHandler(xerrorstart)是一个函数，
+	 * 它用于设置Xlib的错误处理程序，当Xlib发生错误时，它会调用xerrorstart函数来处理错误
+	*/ 
 	xerrorxlib = XSetErrorHandler(xerrorstart);
 	/* this causes an error if some other window manager is running */
+	/* 
+	 * 如果其他窗口管理器正在运行，这将导致一个错误
+	 * 因为一次只允许一个X连接选择此事件掩码，当存在其他窗口管理器正在运行时，则会报错
+	 */
 	XSelectInput(dpy, DefaultRootWindow(dpy), SubstructureRedirectMask);
+	// 同步显示器
 	XSync(dpy, False);
+	// 将XSetErrorHandler设置为xerror函数
 	XSetErrorHandler(xerror);
+	// 同步显示器
 	XSync(dpy, False);
 }
 
@@ -1542,14 +1570,22 @@ setmfact(const Arg *arg)
 	arrange(selmon);
 }
 
+/* 
+ * setup函数用于初始化dwm，它会清理僵尸进程，
+ * 初始化屏幕、原子、光标、外观、栏、状态栏，
+ * 支持NetWMCheck，支持EWMH，选择事件，抓取按键，
+ * 并将焦点设置为NULL 
+*/
 void
 setup(void)
 {
 	int i;
+	// 定义一个XSetWindowAttributes结构体wa
 	XSetWindowAttributes wa;
 	Atom utf8string;
 
 	/* clean up any zombies immediately */
+	/* 立即清理任何僵尸 */
 	sigchld(0);
 
 	/* init screen */
@@ -1560,10 +1596,13 @@ setup(void)
 	drw = drw_create(dpy, screen, root, sw, sh);
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
+	// 设置lrpad为字体高度
 	lrpad = drw->fonts->h;
+	// 设置bh为字体高度加2
 	bh = drw->fonts->h + 2;
 	updategeom();
 	/* init atoms */
+	// 将原子utf8string设置为XInternAtom函数返回的值
 	utf8string = XInternAtom(dpy, "UTF8_STRING", False);
 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
 	wmatom[WMDelete] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
@@ -1643,11 +1682,16 @@ showhide(Client *c)
 	}
 }
 
+/* 
+ * 这个函数的作用是安装SIGCHLD信号处理程序，
+ * 当子进程终止时，它会捕获SIGCHLD信号，并调用waitpid函数来清理子进程的资源
+*/
 void
 sigchld(int unused)
 {
 	if (signal(SIGCHLD, sigchld) == SIG_ERR)
 		die("can't install SIGCHLD handler:");
+	// 循环调用waitpid函数，清理子进程的资源
 	while (0 < waitpid(-1, NULL, WNOHANG));
 }
 
@@ -1861,16 +1905,21 @@ updateclientlist()
 				(unsigned char *) &(c->win), 1);
 }
 
+/*
+ * 这个函数的作用是更新显示器的几何信息，
+ * 如果发现有变化，则更新相关的参数，并将selmon设置为当前显示器
+*/
 int
 updategeom(void)
 {
 	int dirty = 0;
-
+// 如果XINERAMA激活，则执行下面的代码
 #ifdef XINERAMA
 	if (XineramaIsActive(dpy)) {
 		int i, j, n, nn;
 		Client *c;
 		Monitor *m;
+		// 查询Xinerama屏幕信息
 		XineramaScreenInfo *info = XineramaQueryScreens(dpy, &nn);
 		XineramaScreenInfo *unique = NULL;
 
@@ -1878,6 +1927,7 @@ updategeom(void)
 		/* only consider unique geometries as separate screens */
 		unique = ecalloc(nn, sizeof(XineramaScreenInfo));
 		for (i = 0, j = 0; i < nn; i++)
+			// 检查屏幕信息是否唯一
 			if (isuniquegeom(unique, j, &info[i]))
 				memcpy(&unique[j++], &info[i], sizeof(XineramaScreenInfo));
 		XFree(info);
@@ -2092,6 +2142,15 @@ wintomon(Window w)
 /* There's no way to check accesses to destroyed windows, thus those cases are
  * ignored (especially on UnmapNotify's). Other types of errors call Xlibs
  * default error handler, which may call exit. */
+/* 
+ * 没有办法检查对被破坏的窗口的访问，因此这些情况被忽略了（特别是在UnmapNotify上）。
+ * 其他类型的错误会调用Xlibs 默认的错误处理程序，它可能会调用退出
+*/
+/* 
+ * xerror函数用于处理Xlib发生的错误，它会检查错误代码，
+ * 如果是BadWindow或者是X_SetInputFocus、X_PolyText8、X_PolyFillRectangle、X_PolySegment、X_ConfigureWindow、X_GrabButton、X_GrabKey或X_CopyArea发生的错误，则返回0，
+ * 否则会输出错误信息，然后调用xerrorxlib函数处理错误，xerrorxlib函数可能会调用exit函数终止程序
+*/
 int
 xerror(Display *dpy, XErrorEvent *ee)
 {
@@ -2118,9 +2177,11 @@ xerrordummy(Display *dpy, XErrorEvent *ee)
 
 /* Startup Error handler to check if another window manager
  * is already running. */
+/* 启动错误处理程序，检查另一个窗口管理器是否已经在运行*/
 int
 xerrorstart(Display *dpy, XErrorEvent *ee)
 {
+	// 输出错误信息
 	die("dwm: another window manager is already running");
 	return -1;
 }
@@ -2137,17 +2198,25 @@ zoom(const Arg *arg)
 	pop(c);
 }
 
+// 这段代码是dwm的主函数，它定义了dwm的主要流程
 int
 main(int argc, char *argv[])
 {
+	// 检查命令行参数
+	// 检查命令行参数，如果参数个数为2且参数为"-v"，则输出dwm的版本号
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION);
+	// 如果参数个数不为1，则输出使用方法
 	else if (argc != 1)
 		die("usage: dwm [-v]");
+	// 设置本地化，如果设置失败或不支持本地化，则输出警告信息
 	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fputs("warning: no locale support\n", stderr);
+	// XOpenDisplay函数用于连接X服务器，NULL参数表示使用默认的X服务器连接
 	if (!(dpy = XOpenDisplay(NULL)))
+		// 如果连接失败，则输出错误信息
 		die("dwm: cannot open display");
+	// 检查是否有其他窗口管理器在运行
 	checkotherwm();
 	setup();
 #ifdef __OpenBSD__
